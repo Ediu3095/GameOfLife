@@ -15,7 +15,8 @@ __global__ void updateKernel(const int rows, const int cols, const bool* in, boo
 	// Count the amount of living neighbours around this position
 	int neighbours = -in[i * cols + j];
 	for (int ioff = -1; ioff <= 1; ioff++)
-		for (int joff = -1; joff <= 1; joff++) {
+		for (int joff = -1; joff <= 1; joff++)
+		{
 			int iaux = i + ioff, jaux = j + joff;
 			if (iaux >= 0 && iaux < rows && jaux >= 0 && jaux < cols)
 				neighbours += in[iaux * cols + jaux];
@@ -35,24 +36,28 @@ cudaError_t updateWithCuda(const int rows, const int cols, const bool* in, bool*
 	{
 		// Choose which GPU to run on, change this on a multi-GPU system.
 		cudaStatus = cudaSetDevice(0);
-		if (cudaStatus != cudaSuccess) {
+		if (cudaStatus != cudaSuccess)
+		{
 			throw std::exception("cudaSetDevice failed! Do you have a CUDA-capable GPU installed?");
 		}
 
 		// Allocate GPU buffers for three vectors (two input, one output).
 		cudaStatus = cudaMalloc((void**)&dev_in, rows * cols * sizeof(bool));
-		if (cudaStatus != cudaSuccess) {
+		if (cudaStatus != cudaSuccess)
+		{
 			throw std::exception("cudaMalloc failed!");
 		}
 
 		cudaStatus = cudaMalloc((void**)&dev_out, rows * cols * sizeof(bool));
-		if (cudaStatus != cudaSuccess) {
+		if (cudaStatus != cudaSuccess)
+		{
 			throw std::exception("cudaMalloc failed!");
 		}
 
 		// Copy input vectors from host memory to GPU buffers.
 		cudaStatus = cudaMemcpy(dev_in, in, rows * cols * sizeof(bool), cudaMemcpyHostToDevice);
-		if (cudaStatus != cudaSuccess) {
+		if (cudaStatus != cudaSuccess)
+		{
 			throw std::exception("cudaMemcpy failed!");
 		}
 
@@ -66,7 +71,8 @@ cudaError_t updateWithCuda(const int rows, const int cols, const bool* in, bool*
 
 		// Check for any errors launching the kernel
 		cudaStatus = cudaGetLastError();
-		if (cudaStatus != cudaSuccess) {
+		if (cudaStatus != cudaSuccess)
+		{
 			//fprintf(stderr, "updateKernel launch failed: %s\n", cudaGetErrorString(cudaStatus));
 			throw std::exception("updateKernel launch failed");
 		}
@@ -74,14 +80,16 @@ cudaError_t updateWithCuda(const int rows, const int cols, const bool* in, bool*
 		// cudaDeviceSynchronize waits for the kernel to finish, and returns
 		// any errors encountered during the launch.
 		cudaStatus = cudaDeviceSynchronize();
-		if (cudaStatus != cudaSuccess) {
+		if (cudaStatus != cudaSuccess)
+		{
 			//fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching addKernel!\n", cudaStatus);
 			throw std::exception("cudaDeviceSynchronize returned an error code after launching addKernel!");
 		}
 
 		// Copy output vector from GPU buffer to host memory.
 		cudaStatus = cudaMemcpy(out, dev_out, rows * cols * sizeof(bool), cudaMemcpyDeviceToHost);
-		if (cudaStatus != cudaSuccess) {
+		if (cudaStatus != cudaSuccess)
+		{
 			throw std::exception("cudaMemcpy failed!");
 		}
 	}
