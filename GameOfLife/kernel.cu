@@ -13,7 +13,7 @@ __global__ void updateKernel(const int rows, const int cols, const bool* in, boo
 		return;
 
 	// Count the amount of living neighbours around this position
-	char neighbours = -in[i * cols + j];
+	int neighbours = -in[i * cols + j];
 	for (int ioff = -1; ioff <= 1; ioff++)
 		for (int joff = -1; joff <= 1; joff++) {
 			int iaux = i + ioff, jaux = j + joff;
