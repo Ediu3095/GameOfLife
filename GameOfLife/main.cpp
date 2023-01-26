@@ -5,6 +5,9 @@
 // CUDA code
 #include "kernel.cuh"
 
+// c++ libs
+#include <iostream>
+
 class GameOfLife : public olc::PixelGameEngine
 {
 public:
@@ -25,12 +28,9 @@ public:
 		grid[0] = (bool*)malloc(width * height * sizeof(bool));
 		grid[1] = (bool*)malloc(width * height * sizeof(bool));
 
+		// Clears the grids
 		memset(grid[0], 0, width * height * sizeof(bool));
 		memset(grid[1], 0, width * height * sizeof(bool));
-
-		grid[0][2 * height + 1] =
-			grid[0][2 * height + 2] =
-			grid[0][2 * height + 3] = 1;
 
 		return true;
 	}
@@ -135,13 +135,21 @@ private:
 	float totalTime = updateTime;
 
 	bool pause = 1;
-	bool forceDraw = 0;
+	bool forceDraw = 1;
 
 	cudaError_t cudaStatus;
 };
 
 int main()
 {
+	// Display the controls in the terminal
+	std::cout << "## CONTROLS ##" << std::endl;
+	std::cout << "    SPACE            : pause" << std::endl;
+	std::cout << "    ESCAPE           : exit" << std::endl;
+	std::cout << "    (paused) MOUSE 0 : draw living cells" << std::endl;
+	std::cout << "    (paused) MOUSE 1 : draw dead cells" << std::endl;
+
+	// Launch the game window
 	GameOfLife gol;
 	if (gol.Construct(1280, 720, 1, 1, false, false))
 		gol.Start();

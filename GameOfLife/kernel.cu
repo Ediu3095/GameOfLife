@@ -1,6 +1,6 @@
-﻿#include <iostream>
+﻿#include "kernel.cuh"
 
-#include "kernel.cuh"
+#include <iostream>
 
 __global__ void updateKernel(const int rows, const int cols, const bool* in, bool* out)
 {
