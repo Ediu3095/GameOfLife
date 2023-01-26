@@ -65,7 +65,8 @@ public:
 			if (GetMouse(olc::Mouse::LEFT).bHeld)
 			{
 				int x = GetMouseX() / cellSize, y = GetMouseY() / cellSize;
-				grid[display][x * height + y] = 1;
+				grid[ display][x * height + y] = 1;
+				grid[!display][x * height + y] = 1;
 				forceDraw = 1;
 			}
 
@@ -73,7 +74,8 @@ public:
 			if (GetMouse(olc::Mouse::RIGHT).bHeld)
 			{
 				int x = GetMouseX() / cellSize, y = GetMouseY() / cellSize;
-				grid[display][x * height + y] = 0;
+				grid[ display][x * height + y] = 0;
+				grid[!display][x * height + y] = 1;
 				forceDraw = 1;
 			}
 		}
@@ -90,6 +92,8 @@ public:
 
 				// Swap the grids
 				display = !display;
+
+				forceDraw = 1;
 			}
 		}
 
@@ -98,17 +102,19 @@ public:
 
 	bool draw(float fElapsedTime)
 	{
-		if (!pause || forceDraw) {
-			forceDraw = 0;
+		// Clear messages
+		FillRect((ScreenWidth() - 9 * 8) / 2, (ScreenHeight() - 8) / 2, 9 * 8 * 2, 8 * 2, olc::BLACK);
 
-			// Clear the screen
-			FillRect(0, 0, ScreenWidth(), ScreenHeight(), olc::BLACK);
+		if (forceDraw) {
+			forceDraw = 0;
 
 			// Draw the currently displayed grid, pixel by pixel
 			for (int x = 0; x < width; x++)
 				for (int y = 0; y < height; y++)
 					if (grid[display][x * height + y])
 						FillRect(x * cellSize, y * cellSize, cellSize, cellSize, olc::WHITE);
+					else if (grid[!display][x * height + y])
+						FillRect(x * cellSize, y * cellSize, cellSize, cellSize, olc::BLACK);
 		}
 
 		// Draw messages
@@ -144,10 +150,10 @@ int main()
 {
 	// Display the controls in the terminal
 	std::cout << "## CONTROLS ##" << std::endl;
-	std::cout << "    SPACE            : pause" << std::endl;
-	std::cout << "    ESCAPE           : exit" << std::endl;
-	std::cout << "    (paused) MOUSE 0 : draw living cells" << std::endl;
-	std::cout << "    (paused) MOUSE 1 : draw dead cells" << std::endl;
+	std::cout << "    SPACE                  : Pause the game" << std::endl;
+	std::cout << "    ESCAPE                 : Close the game" << std::endl;
+	std::cout << "    MOUSE 0 (while paused) : Draw a living cell" << std::endl;
+	std::cout << "    MOUSE 1 (while paused) : Erase a living cell" << std::endl;
 
 	// Launch the game window
 	GameOfLife gol;
