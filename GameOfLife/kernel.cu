@@ -17,9 +17,21 @@ __global__ void updateKernel(const int rows, const int cols, const bool* in, boo
 	for (int ioff = -1; ioff <= 1; ioff++)
 		for (int joff = -1; joff <= 1; joff++)
 		{
+			// Handle out of bounds indices
 			int iaux = i + ioff, jaux = j + joff;
-			if (iaux >= 0 && iaux < rows && jaux >= 0 && jaux < cols)
-				neighbours += in[iaux * cols + jaux];
+
+			if (iaux < 0)
+				iaux = rows - 1;
+			else if (iaux >= rows)
+				iaux = 0;
+
+			if (jaux < 0)
+				jaux = cols - 1;
+			else if (jaux >= cols)
+				jaux = 0;
+
+			// Count a new neighbour
+			neighbours += in[iaux * cols + jaux];
 		}
 
 	// Store the amount of neighbours in the output

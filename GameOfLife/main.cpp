@@ -143,7 +143,7 @@ private:
 int main()
 {
 	GameOfLife gol;
-	if (gol.Construct(1280, 720, 1, 1, true, true))
+	if (gol.Construct(1280, 720, 1, 1, false, false))
 		gol.Start();
 
 	return 0;
