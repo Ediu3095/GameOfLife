@@ -2,14 +2,18 @@
 
 #include "kernel.cuh"
 
-__global__ void updateKernel(const int rows, const int cols, const bool* in, int* out)
+__global__ void updateKernel(const int rows, const int cols, const bool* in, bool* out)
 {
 	// Get the row and column with which to work
 	int i = threadIdx.x + blockIdx.x * blockDim.x;
 	int j = threadIdx.y + blockIdx.y * blockDim.y;
 
+	// Stop threads that overstep the bounds of the grid
+	if (i >= rows || j >= cols)
+		return;
+
 	// Count the amount of living neighbours around this position
-	int neighbours = 0;
+	char neighbours = -in[i * cols + j];
 	for (int ioff = -1; ioff <= 1; ioff++)
 		for (int joff = -1; joff <= 1; joff++) {
 			int iaux = i + ioff, jaux = j + joff;
@@ -18,13 +22,13 @@ __global__ void updateKernel(const int rows, const int cols, const bool* in, int
 		}
 
 	// Store the amount of neighbours in the output
-	out[i * cols + j] = neighbours;
+	out[i * cols + j] = (neighbours == 3 || (neighbours == 2 && in[i * cols + j]));
 }
 
-cudaError_t updateWithCuda(const int rows, const int cols, const bool* in, int* out)
+cudaError_t updateWithCuda(const int rows, const int cols, const bool* in, bool* out)
 {
 	bool* dev_in;
-	int * dev_out;
+	bool* dev_out;
 	cudaError_t cudaStatus;
 
 	try
@@ -41,7 +45,7 @@ cudaError_t updateWithCuda(const int rows, const int cols, const bool* in, int* 
 			throw std::exception("cudaMalloc failed!");
 		}
 
-		cudaStatus = cudaMalloc((void**)&dev_out, rows * cols * sizeof(int));
+		cudaStatus = cudaMalloc((void**)&dev_out, rows * cols * sizeof(bool));
 		if (cudaStatus != cudaSuccess) {
 			throw std::exception("cudaMalloc failed!");
 		}
@@ -76,7 +80,7 @@ cudaError_t updateWithCuda(const int rows, const int cols, const bool* in, int* 
 		}
 
 		// Copy output vector from GPU buffer to host memory.
-		cudaStatus = cudaMemcpy(out, dev_out, rows * cols * sizeof(int), cudaMemcpyDeviceToHost);
+		cudaStatus = cudaMemcpy(out, dev_out, rows * cols * sizeof(bool), cudaMemcpyDeviceToHost);
 		if (cudaStatus != cudaSuccess) {
 			throw std::exception("cudaMemcpy failed!");
 		}

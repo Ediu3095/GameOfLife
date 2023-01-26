@@ -38,33 +38,21 @@ int main()
     //if (demo.Construct(25, 25, 10, 10))
     //    demo.Start();
 
-    std::cout << "Hola, mundo!" << std::endl;
+    const int rows = 5, cols = 5;
+    bool in [rows * cols] = { 0 };
+    bool out[rows * cols] = { 0 };
 
-    const int rows = 4, cols = 4;
-    bool in [rows * cols] = { 1 };
-    int  out[rows * cols] = { 0 };
+    in[2 * cols + 1] = in[2 * cols + 2] = in[2 * cols + 3] = 1;
 
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++)
             std::cout << in[i * cols + j] << "\t";
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++)
-            std::cout << out[i * cols + j] << "\t";
         std::cout << std::endl;
     }
 
     updateWithCuda(rows, cols, in, out);
     std::cout << std::endl;
 
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++)
-            std::cout << in[i * cols + j] << "\t";
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++)
             std::cout << out[i * cols + j] << "\t";
